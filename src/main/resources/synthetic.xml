@@ -53,7 +53,7 @@
 </type-modification>
 <type type="lmwas.WmqActivationSpecificationCCDT" extends="was.WmqActivationSpecification" deployable-type="lmwas.WmqActivationSpecificationCCDTSpec" description="Specifies a WMQ Activation Specification with CCDT URL. Resource valid only with WAS 7.0 and later application servers.">
     <generate-deployable type="lmwas.WmqActivationSpecificationCCDTSpec" extends="was.WmqActivationSpecificationSpec" description="Specification of a WMQ Activation Specification with CCDT URL. Resource valid only with WAS 8.0 and later application servers."/>
-    <property name="additionalPropertiesNotToExpose" hidden="true" default="qmgrSvrconnChannel, qmgrHostname, qmgrPortNumber, customProperties, wmqTransportType"/>
+    <!--<property name="additionalPropertiesNotToExpose" hidden="true" default="qmgrSvrconnChannel, qmgrHostname, qmgrPortNumber, customProperties, wmqTransportType"/>-->
 </type>
 
 <!-- Non-Wmq Jms Activation Spec -->
@@ -322,7 +322,7 @@ AdminTask.setBinding('[-policyType HTTPTransport -attachmentType client -binding
     <property name="createScript" hidden="true" default="lmwas/bindings/create-application-binding.py" />
     <property name="destroyScript" hidden="true" default="lmwas/bindings/destroy-application-binding.py" />
     <property name="libraryScripts" kind="list_of_string" default="lmwas/bindings/binding-object-lib.py" hidden="true"/>
-    <property name="createOrder" kind="integer" default="65" hidden="true"/>
+    <property name="createOrder" kind="integer" default="85" hidden="true"/>
     <property name="destroyOrder" kind="integer" default="20" hidden="true"/>
     <property name="description" hidden="false" kind="string" default="" description="describe this policyset"/>
     <property name="bindings" as-containment="true" kind="set_of_ci" referenced-type="lmwas.ApplicationBindingsBasePolicy" required="false"/>
@@ -433,6 +433,15 @@ AdminTask.setBinding('[-policyType HTTPTransport -attachmentType client -binding
     <property name="methodName" default="" kind="string" required="false"/>
 </type>
 
+<!-- The following encompasses setActivationSpecMaxConcurrency -->
+<type type="lmwas.ActivationSpecMaxConcurrency" extends="lmwas.ApplicationBindingsBasePolicy" deployable-type="lmwas.ActivationSpecMaxConcurrencySpec" >
+    <generate-deployable type="lmwas.ActivationSpecMaxConcurrencySpec" extends="lmwas.ApplicationBaseBindingSpec" />
+    <property name="bindingType" kind="string" default="ActivationSpecMaxConcurrency" hidden="true" required="true" />
+    <property name="bindingOrder" kind="integer" default="2" hidden="true" required="true" />
+    <property name="activationSpecName" default="" kind="string" required="true" />
+    <property name="maxConcurrency" default="" kind="integer" required="true" />
+</type>
+
 <!-- The following encompasses setSCAImportHttpBindingProxy, setSCAImportHttpBindingProxy_MethodScope, setSCAImportHttpsBindingProxy, setSCAImportHttpsBindingProxy_MethodScope -->
 <type type="lmwas.SCAImportBindingProxy" extends="lmwas.ApplicationBindingsBasePolicy" deployable-type="lmwas.SCAImportBindingProxySpec" >
     <generate-deployable type="lmwas.SCAImportBindingProxySpec" extends="lmwas.ApplicationBaseBindingSpec" />
@@ -512,7 +521,7 @@ AdminTask.setBinding('[-policyType HTTPTransport -attachmentType client -binding
     <property name="createScript" hidden="true" default="lmwas/ssl/create-outbound-dynamic-ssl-config.py" />
     <property name="destroyScript" hidden="true" default="lmwas/ssl/destroy-outbound-dynamic-ssl-config.py" />
     <property name="libraryScripts" kind="list_of_string" default="lmwas/ssl/ssl-object-lib.py" hidden="true"/>
-    <property name="createOrder" kind="integer" default="65" hidden="true"/>
+    <property name="createOrder" kind="integer" default="85" hidden="true"/>
     <property name="destroyOrder" kind="integer" default="20" hidden="true"/>
 </type>
 

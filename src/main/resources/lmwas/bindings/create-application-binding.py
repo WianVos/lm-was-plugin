@@ -3,11 +3,16 @@ if hasattr(deployed, 'bindings'):
 	primary = []
 	secondary = []
 	for binding in deployed.bindings:
+                print binding
 		if binding.bindingOrder == 1:
 			primary += [binding]
 		elif binding.bindingOrder == 2:
 			secondary += [binding]
 	for binding in primary:
-		createBinding(deployed.name, binding.bindingType, bindingAsHash(binding))
+
+		output = createBinding(deployed.name, binding.bindingType, bindingAsHash(binding))
+                print output
+
 	for binding in secondary:
-		createBinding(deployed.name, binding.bindingType, bindingAsHash(binding))	
+		output = createBinding(deployed.name, binding.bindingType, bindingAsHash(binding))	
+                print output

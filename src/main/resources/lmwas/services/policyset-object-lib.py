@@ -141,7 +141,7 @@ def destroyClientPolicySetBindingPolicy(setName, attachmentType):
     print AdminTask.setBinding("-bindingLocation -attachmentType %s -remove true -bindingName %s" % (attachmentType, setName))
     print "removed policySet %s" % (setName)
   except:
-    print "unable to remove policyBindingClientThingy" % (setName)
+    print "unable to remove policyBindingClientThingy %s" % (setName)
     raise
 
 def createClientPolicySetBinding(deployed):

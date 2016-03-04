@@ -33,6 +33,27 @@ def setWebModContextRoot(attributes):
   AdminApp.edit(attributes['applicationName'], ["-CtxRootForWebMod", [[attributes['webModuleName'], attributes['uri'], attributes['contextRoot']]]])
 
 #------
+#This doesnt work syntax error, also need to review wsadmintoList function.
+def setActivationSpecMaxConcurrency (attributes):
+  newMaxConn = str(attributes['maxConcurrency'])
+  if newMaxConn.isdigit():
+    ActSpecs = AdminConfig.list('J2CActivationSpec').splitlines()
+    for ActSpec in ActSpecs:
+      if ActSpec.find(attributes['activationSpecName']) != -1:
+        ActSpecAtt = AdminConfig.showAttribute(ActSpec, 'resourceProperties')
+        ActSpecAttList = wsadminToList(ActSpecAtt)
+        for i in ActSpecAttList:
+          if i.find('maxConcurrency') != -1:
+            try:
+              AdminConfig.modify(i, [['value', newMaxConn]])
+            except:
+              print "Unable to locate max concurrency setting for the specified Activation Spec"
+              raise
+  else:
+    print "The max concurrency specified: %s is not an integer, please provide a proper value." % (attributes['maxConcurrency'])
+    raise
+
+#------
 
 def setModuleProperty(attributes):
   print "Setting %s to %s for %s" % (attributes['propertyName'], attributes['propertyValue'], attributes['moduleName'])
@@ -56,14 +77,14 @@ def setSCAImportHttpBindingSSLConfiguration(attributes):
 def setSCAImportHttpBindingWithAuth(attributes):
   print "Assigning auth settings to %s in %s" % (attributes['importName'], attributes['moduleName'])
   tagName = stringExistCheck(attributes['importName'], attributes['methodName'])
-  AdminTask.modifySCAImportHttpBinding("-moduleName %s -import %s -endpointURL <%s>%s</%s>  -authAlias <%s>%s</%s>" % ( attributes['moduleName'],  attributes['importName'], tagName,  attributes['newURL'], tagName, tagName,  attributes['j2cAuthName'], tagName))
+  AdminTask.modifySCAImportHttpBinding("-moduleName %s -import %s -endpointURL <%s>%s</%s>  -authAlias <%s>%s</%s>" % ( attributes['moduleName'],  attributes['importName'], tagName,  attributes['newUrl'], tagName, tagName,  attributes['j2cAuthName'], tagName))
 
 #------
 
 def setSCAImportHttpBinding(attributes):
-  print "Setting %s in %s to %s with a timeout value of %s" % (attributes['importName'], attributes['moduleName'], attributes['newURL'], attributes['newTimeout'])
+  print "Setting %s in %s to %s with a timeout value of %s" % (attributes['importName'], attributes['moduleName'], attributes['newUrl'], attributes['newTimeout'])
   tagName = stringExistCheck(attributes['importName'], attributes['methodName'])
-  AdminTask.modifySCAImportHttpBinding("-moduleName %s -import %s -endpointURL <%s>%s</%s> -responseReadTimeout <%s>%s</%s>" % (attributes['moduleName'], attributes['importName'], tagName, attributes['newURL'], tagName, tagName, attributes['newTimeout'], tagName))
+  AdminTask.modifySCAImportHttpBinding("-moduleName %s -import %s -endpointURL <%s>%s</%s> -responseReadTimeout <%s>%s</%s>" % (attributes['moduleName'], attributes['importName'], tagName, attributes['newUrl'], tagName, tagName, attributes['newTimeout'], tagName))
 
 #------
 
@@ -142,6 +163,30 @@ def setMDBRetries(attributes):
 def setSharedLibraryForModule(attributes):
   print "Setting shared libraries for %s" % (attributes['applicationName'])
   AdminApp.edit(attributes['applicationName'], ['-MapSharedLibForMod', [[attributes['applicationName'], 'META-INF/application.xml', attributes['sharedLibrariesName']]]])
+
+#------
+
+def wsadminToList(inStr):
+    """
+    Take a default string format from a wsadmin command and generate a Python list
+
+    Arguments:
+    inString - (string)
+
+    Returns:
+    a list
+    """
+
+    outList=[]
+    if (len(inStr)>0 and inStr[0]=='[' and inStr[-1]==']'):
+        tmpList = inStr[1:-1].split(" ")
+    else:
+        tmpList = inStr.split("\n") #splits for Windows or Linux
+    for item in tmpList:
+        item = item.rstrip(); #removes any Windows "\r"
+        if (len(item)>0):
+            outList.append(item)
+    return outList
 
 #------
 
@@ -269,5 +314,7 @@ def createBinding(binding, bindingType, attributes):
      setMDBRetries(attributes)
   elif bindingType == "SharedLibraryForModule":
      setSharedLibraryForModule(attributes)
+  elif bindingType == "ActivationSpecMaxConcurrency":
+     setActivationSpecMaxConcurrency(attributes)
   else:
      print "Binding Type Not Recognized"
