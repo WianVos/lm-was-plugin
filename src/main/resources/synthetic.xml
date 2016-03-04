@@ -1,0 +1,537 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+    Note: If you modify this file, you must restart the XL Deploy server.
+-->
+<synthetic xsi:schemaLocation="http://www.xebialabs.com/deployit/synthetic synthetic.xsd" xmlns="http://www.xebialabs.com/deployit/synthetic" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+<!-- Extending Jaas Alias to create a name field -->
+<type type="lmwas.JaasAliasSpecification" extends="was.JaasAlias" deployable-type="lmwas.JaasAliasSpecificationSpec" >
+    <generate-deployable type="lmwas.JaasAliasSpecificationSpec" extends="was.JaasAliasSpec" />
+    <property name="objectName" required="true" hidden="false" kind="string" description="Alias Name to be used for creating object."/>
+    <!-- admin properties -->
+    <property name="createScript" hidden="true" default="lmwas/jaas/create-or-modify-jaas-alias.py"/>
+    <property name="modifyScript" hidden="true" default="lmwas/jaas/create-or-modify-jaas-alias.py"/>
+    <property name="destroyScript" hidden="true" default="lmwas/jaas/destroy-jaas-alias.py"/>
+    <property name="libraryScripts" kind="list_of_string" default="lmwas/jaas/jaas-alias-lib.py" hidden="true"/>
+    <property name="createOrder" kind="integer" default="58" hidden="true"/>
+    <property name="destroyOrder" kind="integer" default="41" hidden="true"/>
+</type>
+
+<!-- Extending Sib Queue Connection Factory -->
+<type type="lmwas.SibQueueConnectionFactory" extends="was.SibQueueConnectionFactory" deployable-type="lmwas.SibQueueConnectionFactorySpec" >
+    <generate-deployable type="lmwas.SibQueueConnectionFactorySpec" extends="was.SibQueueConnectionFactorySpec" />
+	<property name="xaRecoveryAuthAlias" required="false" hidden="false" kind="string" default="" category="Security Settings "/>
+	<property name="mappingAlias" required="false" hidden="false" kind="string" default="DefaultPrincipalMapping" category="Security Settings "/>
+	<property name="containerAuthAlias" required="false" hidden="false" kind="string" default="" category="Security Settings "/>
+	<!-- Hidden Default props -->
+	<property name="targetType" hidden="true" kind="string" default="BusMember" />
+	<property name="targetSignificance" hidden="true" kind="string" default="Preferred" />
+	<property name="connectionProximity" hidden="true" kind="string" default="Bus" />
+	<property name="nonPersistentMapping" hidden="true" kind="string" default="ExpressNonPersistent" />
+	<property name="persistentMapping" hidden="true" kind="string" default="ReliablePersistent" />
+	<property name="readAhead" hidden="true" kind="string" default="Default" />
+	<!-- 
+	<property name="target" hidden="true" kind="string" default="" />
+	<property name="targetTransportChain" hidden="true" kind="string" default="" />
+	<property name="providerEndPoints" hidden="true" kind="string" default="" />
+	<property name="tempQueueNamePrefix" hidden="true" kind="string" default="" />
+	 -->
+    <!-- admin properties -->
+    <property name="createScript" hidden="true" default="lmwas/jms/create-sib-connection-factory.py"/>
+    <property name="destroyScript" hidden="true" default="lmwas/jms/destroy-sib-connection-factory.py"/>
+    <property name="createOrder" kind="integer" default="58" hidden="true"/>
+    <property name="destroyOrder" kind="integer" default="41" hidden="true"/>
+</type>
+
+<!-- Updating WMQ Activation Spec for CCDT files -->
+<type-modification type="was.WmqActivationSpecification">
+    <property name="qmgrSvrconnChannel" default="" required="false" label="Server connection channel" category="Connection" description="The name of a WebSphere MQ svrconn channel to use when connecting to WebSphere MQ."/>
+    <property name="qmgrHostname" default="" required="false" label="Hostname" category="Connection" description="The hostname which will be used when attempting a client mode connection to WebSphere MQ."/>
+    <property name="qmgrPortNumber" kind="integer" default="" required="false" label="Port" category="Connection" description="The TCP/IP port number used for connection to the WebSphere MQ queue manager, for client connection only.">
+        <rule type="range" minimum="0" message="Value should be in the range 0 through 2147483647."/>
+    </property>
+</type-modification>
+<type type="lmwas.WmqActivationSpecificationCCDT" extends="was.WmqActivationSpecification" deployable-type="lmwas.WmqActivationSpecificationCCDTSpec" description="Specifies a WMQ Activation Specification with CCDT URL. Resource valid only with WAS 7.0 and later application servers.">
+    <generate-deployable type="lmwas.WmqActivationSpecificationCCDTSpec" extends="was.WmqActivationSpecificationSpec" description="Specification of a WMQ Activation Specification with CCDT URL. Resource valid only with WAS 8.0 and later application servers."/>
+    <property name="additionalPropertiesNotToExpose" hidden="true" default="qmgrSvrconnChannel, qmgrHostname, qmgrPortNumber, customProperties, wmqTransportType"/>
+</type>
+
+<!-- Non-Wmq Jms Activation Spec -->
+<type type="lmwas.JmsActivationSpecification" extends="was.Resource" deployable-type="lmwas.JmsActivationSpecificationSpec" >
+    <generate-deployable type="lmwas.JmsActivationSpecificationSpec" extends="was.Deployable" />
+    <property name="provider" default="Default messaging provider" hidden="false" required="true" kind="string" category="Administration" />
+    <property name="jndiName" hidden="false" required="true" kind="string" category="Administration" />
+    <property name="destinationJndiName" hidden="false" required="true" kind="string" category="Destination" />
+    <property name="description" hidden="false" required="false" kind="string" category="Administration" />
+    <property name="busName" hidden="false" required="true" kind="string" category="Destination" />
+    <property name="clientId" hidden="false" required="false" kind="string" category="Subscription Durability" />	
+    <property name="durableSubscriptionHome" hidden="false" required="false" kind="string" category="Subscription Durability" />	
+    <property name="destinationType" hidden="false" default="javax.jms.Topic" required="true" kind="string" category="Destination" />	
+    <property name="messageSelector" hidden="false" required="false" kind="string" category="Destination" />
+    <property name="acknowledgeMode" hidden="false" default="Auto-acknowledge" required="false" kind="string" category="Destination" />	
+    <property name="subscriptionName" hidden="false" required="false" kind="string" category="Subscription Durability" />
+    <property name="maxBatchSize" hidden="false" default="1" required="false" kind="integer" category="Additional" />
+    <property name="maxConcurrency" hidden="false" default="10" required="false" kind="integer" category="Additional" />
+    <property name="subscriptionDurability" hidden="false" default="NonDurable" required="false" kind="string" category="Subscription Durability" />	
+    <property name="shareDurableSubscriptions" hidden="false" default="InCluster" required="false" kind="string" category="Advanced" />
+    <property name="authenticationAlias" hidden="false" default="" required="false" kind="string" category="Security settings" />
+    <property name="readAhead" hidden="false" default="Default" required="false" kind="string" category="Advanced" />
+    <property name="target" hidden="false" required="false" kind="string" category="Destination" />
+    <property name="targetType" hidden="false" default="BusMember" required="false" kind="string" category="Destination" />
+    <property name="targetSignificance" hidden="false" default="Preferred" required="false" kind="string" category="Destination" />	
+    <property name="targetTransportChain" hidden="false" required="false" kind="string" category="Destination" />
+    <property name="providerEndPoints" hidden="false" required="false" kind="string" category="Destination" />
+    <property name="shareDataSourceWithCMP" hidden="false" default="false" required="false" kind="boolean" category="Advanced" />
+    <property name="consumerDoesNotModifyPayloadAfterGet" hidden="false" default="false" required="false" kind="boolean" category="Pass message payload by reference" />
+    <property name="forwarderDoesNotModifyPayloadAfterSet" hidden="false" default="false" required="false" kind="boolean" category="Pass message payload by reference" />
+    <property name="alwaysActivateAllMDBs" hidden="false" default="false" required="false" kind="boolean" category="Advanced" />	
+    <property name="retryInterval" hidden="false" default="30" required="false" kind="integer" category="Advanced">
+     <rule type="range" minimum="5" maximum="180" message="Value should be a number in range of 5 - 180."/>
+    </property>
+    <property name="autoStopSequentialMessageFailure" hidden="false" default="0" description="Sequential failed message threshold " required="false" kind="integer" category="Automatic Endpoints Stop" />
+    <property name="failingMessageDelay" hidden="false" default="0" description="Delay between failing message retries in milliseconds" required="false" kind="integer" category="Automatic Endpoints Stop" />
+    <property name="createScript" hidden="true" default="lmwas/resources/create-nonwmq-activation-specification.py" />
+    <property name="destroyScript" hidden="true" default="lmwas/resources/destroy-nonwmq-activation-specification.py" />
+    <property name="libraryScripts" kind="list_of_string" default="lmwas/resources/nonwmq-activation-specification-lib.py" hidden="true"/>
+    <property name="createOrder" kind="integer" default="60" hidden="true"/>
+    <property name="destroyOrder" kind="integer" default="21" hidden="true"/>
+</type>
+
+<!-- application policyset stuff -->
+ <type-modification type="lmwas.ApplicationPolicySetBindingSpec">
+        <property name="policies" as-containment="true" kind="set_of_ci" referenced-type="lmwas.ApplicationBasePolicySpec" required="false"/>
+ </type-modification>
+
+ <type type="lmwas.ApplicationPolicySetBinding" extends="was.Resource" deployable-type="lmwas.ApplicationPolicySetBindingSpec" container-type="was.Cell" >
+    <generate-deployable type="lmwas.ApplicationPolicySetBindingSpec" extends="was.Deployable"/>
+    <property name="createScript" hidden="true" default="lmwas/services/create-application-policy-set.py" />
+    <property name="destroyScript" hidden="true" default="lmwas/services/destroy-application-policy-set.py" />
+    <property name="libraryScripts" kind="list_of_string" default="lmwas/services/policyset-object-lib.py" hidden="true"/>
+    <property name="createOrder" kind="integer" default="60" hidden="true"/>
+    <property name="destroyOrder" kind="integer" default="21" hidden="true"/>
+    <property name="description" hidden="false" kind="string" default="" description="describe this policyset"/>
+    <property name="policySetType" hidden="true" kind="string" default="application" description=""/>
+    <property name="policies" as-containment="true" kind="set_of_ci" referenced-type="lmwas.ApplicationBasePolicy" required="false"/>
+</type>
+
+<type type="lmwas.ApplicationBasePolicySpec" extends="udm.BaseEmbeddedDeployable" virtual="true" description="Base for Policy's contained in policy sets" />
+
+<type type="lmwas.ApplicationBasePolicy" extends="udm.BaseEmbeddedDeployed" virtual="true" container-type="lmwas.ApplicationPolicySetBinding"  description="Base for Policy's contained in policy sets" />
+
+<type type="lmwas.HttpApplicationPolicy" extends="lmwas.ApplicationBasePolicy" deployable-type="lmwas.HttpApplicationPolicySpec" >
+    <generate-deployable type="lmwas.HttpApplicationPolicySpec" extends="lmwas.ApplicationBasePolicySpec" />
+    <property name="policyType" default="HTTPTransport" hidden="true" required="true" />
+    <property name="protocolVersion" default="HTTP/1.1" kind="string" required="false"/>   
+    <property name="compressRequest_name" default="compressRequest:name" kind="string" required="true" hidden="true"/>   
+    <property name="compressRequest_value" label="compressRequest" default="none" kind="string" required="false"/>   
+    <property name="compressResponse_name" default="compressResponse:name" kind="string" required="true" hidden="true"/>   
+    <property name="compressResponse_value" label="compressResponse" default="none" kind="string" required="false"/>   
+    <property name="acceptRedirectedURL" default="true" kind="boolean" required="false"/>
+    <property name="maintainSession" default="true" kind="boolean" required="false"/>
+    <property name="chunkTransferEnc" default="true" kind="boolean" required="false"/>
+    <property name="sendExpectHeader" default="true" kind="boolean" required="false"/>
+    <property name="messageResendOnce" default="true" kind="boolean" required="false"/>
+    <property name="persistConnection" default="true" kind="boolean" required="false"/>
+    <property name="readTimeout" default="300" kind="integer" required="false"/>
+    <property name="writeTimeout" default="300" kind="integer" required="false"/>
+    <property name="connectTimeout" default="300" kind="integer" required="false"/>
+</type>
+
+<type type="lmwas.JmsApplicationPolicy" extends="lmwas.ApplicationBasePolicy" deployable-type="lmwas.JmsApplicationPolicySpec" >
+    <generate-deployable type="lmwas.JmsApplicationPolicySpec" extends="lmwas.ApplicationBasePolicySpec" />
+    <property name="policyType" default="JMSTransport" hidden="true" required="true" />
+    <property name="allowTransactionalAsyncMessaging" default="false" kind="boolean" required="false"/>
+    <property name="requestTimeout" default="300" kind="integer" required="false"/>
+</type>
+
+<type type="lmwas.SslTransportApplicationPolicy" extends="lmwas.ApplicationBasePolicy" deployable-type="lmwas.SslTransportApplicationPolicySpec" >
+    <generate-deployable type="lmwas.SslTransportApplicationPolicySpec" extends="lmwas.ApplicationBasePolicySpec" />
+    <property name="policyType" kind="string" default="SSLTransport" hidden="true" required="true" />
+    <property name="inResponseSSLenabled" default="true" kind="boolean" required="false"/>
+    <property name="outAsyncResponseSSLenabled" default="true" kind="boolean" required="false"/>
+    <property name="outRequestSSLenabled" default="true" kind="boolean" required="false"/>
+</type>
+<type type="lmwas.WsAddressingApplicationPolicy" extends="lmwas.ApplicationBasePolicy" deployable-type="lmwas.WsAddressingApplicationPolicySpec" >
+    <generate-deployable type="lmwas.WsAddressingApplicationPolicySpec" extends="lmwas.ApplicationBasePolicySpec" />
+    <property name="policyType" kind="string" default="WSAddressing" hidden="true" required="true" />
+    <property name="wsaMode" default="WSA_BOTH" kind="string" required="false"/>
+    <property name="usingaddressing" default="required" kind="string" required="false"/>
+</type>
+
+<type type="lmwas.WsReliableMessagingApplicationPolicy" extends="lmwas.ApplicationBasePolicy" deployable-type="lmwas.WsReliableMessagingApplicationPolicySpec" >
+    <generate-deployable type="lmwas.WsReliableMessagingApplicationPolicySpec" extends="lmwas.ApplicationBasePolicySpec" />
+    <property name="policyType" kind="string" default="WSReliableMessaging" hidden="true" required="true" />
+    <property name="qualityOfService" default="unmanagedNonPersistent" kind="string" required="false"/>
+    <property name="specLevel" default="1.1" kind="string" required="false"/>
+    <property name="inOrderDelivery" default="true" kind="boolean" required="false"/>
+</type>
+
+<type type="lmwas.WsTransactionApplicationPolicy" extends="lmwas.ApplicationBasePolicy" deployable-type="lmwas.WsTransactionApplicationPolicySpec" >
+    <generate-deployable type="lmwas.WsTransactionApplicationPolicySpec" extends="lmwas.ApplicationBasePolicySpec" />
+    <property name="policyType" default="WSTransaction" hidden="true" required="true" />
+    <property name="BAAtomicOutcomeAssertion" default="supports" kind="string" required="false"/>
+    <property name="ATAssertion" default="supports" kind="string" required="false"/>
+</type>
+
+<!-- General client policy set bindings -->
+ <type-modification type="lmwas.GeneralClientPolicySetBindingSpec">
+        <property name="policies" as-containment="true" kind="set_of_ci" referenced-type="lmwas.GeneralClientBasePolicySpec" required="false"/>
+ </type-modification>
+
+ <type type="lmwas.GeneralClientPolicySetBinding" extends="was.Resource" deployable-type="lmwas.GeneralClientPolicySetBindingSpec" container-type="was.Cell" >
+    <generate-deployable type="lmwas.GeneralClientPolicySetBindingSpec" extends="was.Deployable"/>
+    <property name="createScript" hidden="true" default="lmwas/services/create-GeneralClient-policy-set.py" />
+    <property name="destroyScript" hidden="true" default="lmwas/services/destroy-GeneralClient-policy-set.py" />
+    <property name="modifyScript" hidden="true" default="lmwas/services/modify-GeneralClient-policy-set.py" />
+    <property name="libraryScripts" kind="list_of_string" default="lmwas/services/policyset-object-lib.py" hidden="true"/>
+    <property name="createOrder" kind="integer" default="60" hidden="true"/>
+    <property name="destroyOrder" kind="integer" default="21" hidden="true"/>
+    <property name="description" hidden="false" kind="string" default="" description="describe this policyset"/>
+    <property name="attachmentType" hidden="true" kind="string" default="client" description=""/>
+    <property name="bindingScope" hidden="true" kind="string" default="domain" description=""/>
+    <property name="domain" hidden="true" kind="string" default="domain" description=""/>
+    <property name="policies" as-containment="true" kind="set_of_ci" referenced-type="lmwas.GeneralClientBasePolicy" required="false"/>
+</type>
+
+<type type="lmwas.GeneralClientBasePolicySpec" extends="udm.BaseEmbeddedDeployable" virtual="true" description="Base for Policy's contained in policy sets" />
+
+<type type="lmwas.GeneralClientBasePolicy" extends="udm.BaseEmbeddedDeployed" virtual="true" container-type="lmwas.GeneralClientPolicySetBinding"  description="Base for Policy's contained in policy sets">
+ <property name="domain" default="global" hidden="true" required="true" />
+</type>
+ 
+ <type type="lmwas.SslTransportClientBindingPolicy" extends="lmwas.GeneralClientBasePolicy" deployable-type="lmwas.SslTransportClientBindingPolicySpec" >
+    <generate-deployable type="lmwas.SslTransportClientBindingPolicySpec" extends="lmwas.GeneralClientBasePolicySpec" />
+    <property name="policyType" default="SSLTransport" hidden="true" required="true" />
+    <property name="inResponsewithSSLConfigAlias_name" default="inResponsewithSSL:configAlias" hidden="true" kind="string" required="false"/>
+    <property name="inResponsewithSSLConfigAlias_value" label="inbound Service requests SSL Settings" default="CellDefaultSSLSettings" hidden="false" kind="string" required="false"/>
+    <property name="inResponsewithSSLConfigFile_name" default="inResponsewithSSL:configFile" hidden="true" kind="string" required="false"/>
+    <property name="inResponsewithSSLConfigFile_value" label="inbound Service requests SSL Properties Config File" hidden="false" kind="string" required="false"/>
+    <property name="outRequestwithSSLConfigAlias_name" default="outRequestwithSSL:configAlias" hidden="true" kind="string" required="false"/>
+    <property name="outRequestwithSSLConfigAlias_value" label="outbound Service requests SSL Settings" default="CellDefaultSSLSettings" hidden="false" kind="string" required="false"/>
+    <property name="outRequestwithSSLConfigFile_name" default="outRequestwithSSL:configFile" hidden="true" kind="string" required="false"/>
+    <property name="outRequestwithSSLConfigFile_value" label="outbound Service requests SSL Properties Config File" hidden="false" kind="string" required="false"/>
+    <property name="customProperties" kind="map_string_string" hidden="false" required="false"/>
+</type>
+
+<type type="lmwas.HttpTransportClientBindingPolicy" extends="lmwas.GeneralClientBasePolicy" deployable-type="lmwas.HttpTransportClientBindingPolicySpec" >
+    <generate-deployable type="lmwas.HttpTransportClientBindingPolicySpec" extends="lmwas.GeneralClientBasePolicySpec" />
+    <property name="policyType" category="default" default="HTTPTransport" hidden="true" required="true" />
+    <property name="outAsyncResponseProxyUserid_name" category="Proxy for outbound service requests" default="outAsyncResponseProxy:userid" hidden="true" kind="string" required="false"/>
+    <property name="outAsyncResponseProxyUserid_value" category="Proxy for outbound service requests" label="outAsyncResponseProxy Userid" default="" hidden="false" kind="string" required="false"/>
+    <property name="outAsyncResponseProxyHost_name" category="Proxy for outbound service requests" default="outAsyncResponseProxy:host" hidden="true" kind="string" required="false"/>
+    <property name="outAsyncResponseProxyHost_value" category="Proxy for outbound service requests" label="outAsyncResponseProxy Host" hidden="false" kind="string" required="false"/>
+    <property name="outAsyncResponseProxyPort_name" category="Proxy for outbound service requests" default="outAsyncResponseProxy:port" hidden="true" kind="string" required="false"/>
+    <property name="outAsyncResponseProxyPort_value" category="Proxy for outbound service requests" label="outAsyncResponseProxy Port" hidden="false" kind="string" required="false"/>
+    <property name="outRequestProxyPort_name" category="Proxy for outbound service requests" default="outRequestProxy:port" hidden="true" kind="string" required="false"/>
+    <property name="outRequestProxyPort_value" category="Proxy for outbound service requests" label="outRequestProxy Port" hidden="false" kind="string" required="false"/>
+    <property name="outAsyncResponseProxyPassword_name" category="Proxy for outbound service requests" default="outAsyncResponseProxy:password" hidden="true" kind="string" required="false"/>
+    <property name="outAsyncResponseProxyPassword_value" category="Proxy for outbound service requests" label="outAsyncResponseProxy Password" hidden="false" kind="string" password="true" required="false"/>
+    <property name="outRequestProxyUserid_name" category="Proxy for outbound service requests" default="outRequestProxy:userid" hidden="true" kind="string" required="false"/>
+    <property name="outRequestProxyUserid_value" category="Proxy for outbound service requests" label="outRequestProxy Userid" hidden="false" kind="string" required="false"/>
+    <property name="outRequestProxyPassword_name" category="Proxy for outbound service requests" default="outRequestProxy:password" hidden="true" kind="string" required="false"/>
+    <property name="outRequestProxyPassword_value" category="Proxy for outbound service requests" label="outRequestProxy Password" hidden="false" kind="string" password="true" required="false"/>
+    <property name="outAsyncResponseBasicAuthUserid_name" category="Basic authentication for outbound service requests"  default="outAsyncResponseBasicAuth:userid" hidden="true" kind="string" required="false"/>
+    <property name="outAsyncResponseBasicAuthUserid_value" category="Basic authentication for outbound service requests" label="outAsyncResponseBasicAuth Userid" hidden="false" kind="string" required="false"/>
+    <property name="outAsyncResponseBasicAuthPassword_name" category="Basic authentication for outbound service requests" default="outAsyncResponseBasicAuth:password" hidden="true" kind="string" required="false"/>
+    <property name="outAsyncResponseBasicAuthPassword_value" category="Basic authentication for outbound service requests" label="outAsyncResponseBasicAuth Password" hidden="false" kind="string" password="true" required="false"/>
+    <property name="outRequestBasicAuthPassword_name" category="Basic authentication for outbound service requests" default="outRequestBasicAuth:password" hidden="true" kind="string" required="false"/>
+    <property name="outRequestBasicAuthPassword_value" category="Basic authentication for outbound service requests" label="outRequestBasicAuth Password" hidden="false" kind="string" password="true" required="false"/>
+    <property name="customProperties" category="custom properties" default="" hidden="false" kind="map_string_string" required="false"/>
+</type>
+<!--
+
+
+AdminTask.setBinding('[-policyType HTTPTransport -attachmentType client -bindingScope domain -attributes [   [   [outAsyncResponseBasicAuth:userid ] [description ] ] -bindingName bla -bindingLocation ]') 
+-->
+
+<!-- end of General Client policy set Bindings -->
+
+<!-- SecurityDomain Stuff -->
+<type type="lmwas.securityDomain" extends="was.Resource" deployable-type="lmwas.securityDomainSpec" >
+    <generate-deployable type="lmwas.securityDomainSpec" extends="was.Deployable" />
+    <property name="description" kind="string" required="true" />
+    <property name="mapping" kind="set_of_ci"  referenced-type="was.Cluster" required="false" hidden="false" description="to which was nodes does this policy pertain"/>
+    <property name="ltpaTimeout" kind="integer" default="120" hidden="false" />
+    <!-- admin properties -->
+    <property name="createScript" hidden="true" default="lmwas/security/create-security-domain.py" />
+    <property name="destroyScript" hidden="true" default="lmwas/security/destroy-security-domain.py" />
+    <property name="libraryScripts" kind="list_of_string" default="lmwas/security/security-domain-object-lib.py" hidden="true"/>
+    <property name="createOrder" kind="integer" default="61" hidden="true"/>
+    <property name="destroyOrder" kind="integer" default="20" hidden="true"/>
+    <!-- ldap properties -->
+    <property name="SetupLdap" 	kind="boolean" category="ldap" default="false" hidden="false"/>
+    <property label="realmName" name="ldaPrealmName" 	kind="string" category="ldap" default="" hidden="false" required="false" />
+    <property name="ldaPldapHost" label="ldapHost" 	kind="string" category="ldap" default="" hidden="false" required="false"  />
+    <property name="ldaPldapPort" label="ldapPort"	kind="integer" category="ldap" default="389" hidden="false" required="false" />
+    <property name="ldaPldapServerType" label="ldapServerType" kind="string" category="ldap" default="IBM_DIRECTORY_SERVER" hidden="false" required="false" />
+    <property name="ldaPbaseDN" label="baseDN" 	kind="string" category="ldap" default="" hidden="false"  required="false" />
+    <property name="ldaPbindDN" label="bindDN" 	kind="string" category="ldap" default="" hidden="false" required="false" />
+    <property name="ldaPbindPassword" label="bindPassword" 	kind="string" category="ldap" default="" hidden="false" password="true" required="false" />
+    <property name="ldaPsearchTimeout" label="searchTimeout" 	kind="integer" category="ldap" default="120" hidden="false" required="false" />
+    <property name="ldaPreuseConnection" label="reuseConnection" kind="boolean" category="ldap" default="true" hidden="false" required="false" />
+    <property name="ldaPignoreCase" label="ignoreCase" 	kind="boolean" category="ldap" default="true" hidden="false" required="false" />
+    <property name="ldaPsslEnabled" label="sslEnabled" 	kind="boolean" category="ldap" default="true" hidden="false" required="false" />
+    <property name="ldaPsslConfig" label="sslConfig" kind="string" category="ldap" default=" " hidden="false" required="false" />
+    <property name="ldaPverifyRegistry" label="verifyRegistry" kind="boolean" category="ldap" default="false" hidden="false" required="false" />
+    <property name="ldaPuserFilter" label="userFilter" 	kind="string" category="ldap" default='(&amp;(uid=%v)(objectclass=ePerson))' hidden="false"/>
+    <property name="ldaPgroupFilter" label="groupFilter" kind="string" category="ldap" default='(&amp;(cn=%v)(|(objectclass=groupOfNames)(objectclass=groupOfUniqueNames)(objectclass=groupOfURLs)))' hidden="false"/>
+    <property name="ldaPuserIdMap" label="userIdMap" 	kind="string" category="ldap" default="*:uid" hidden="false"/>
+    <property name="ldaPgroupIdMap" label="groupIdMap"  	kind="string" category="ldap" default="*:cn" hidden="false"/>
+    <property name="ldaPgroupMemberIdMap" label="groupMemberIdMap" kind="string" category="ldap" default="ibm-allGroups:member;ibm-allGroups:uniqueMember;groupOfNames:member;groupOfUniqueNames:uniqueMember" hidden="false"/>
+    <property name="ldaPcertificateFilter" label="certificateFilter" kind="string" category="ldap" default="" hidden="false" required="false"/>
+    <property name="ldaPcertificateMapMode" label="certificateMapMode" kind="string" category="ldap" default="EXACT_DN" hidden="false" required="false"/>
+    <property name="ldaPcustomProperties" label="customProperties" kind="map_string_string" default="com.ibm.websphere.security.ldap.recursiveSearch:yes" category="ldap" hidden="false"  required="false" />
+    <!-- csiInbound configuration -->
+    <property name="SetupCsiInbound" kind="boolean" category="CSIInbound" default="false" hidden="false"/>
+    <property name="csiImessageLevelAuth" label="messageLevelAuth" kind="string" default="Supported" category="CSIInbound" hidden="false" required="false" />
+    <property name="csiIsupportedAuthMechList" label="supportedAuthMechList" kind="string" default="LTPA|BASICAUTH" category="CSIInbound" hidden="false" required="false" />
+    <property name="csiIclientCertAuth" label="clientCertAuth" kind="string" default="Supported" category="CSIInbound" hidden="false" required="false" />
+    <property name="csiItransportLayer" label="transportLayer" kind="string" default="Required" category="CSIInbound" hidden="false" required="false" />
+    <property name="csiIsslConfiguration" label="sslConfiguration" kind="string" default=" " category="CSIInbound" hidden="false" required="false" />
+    <property name="csiIenableIdentityAssertion" label="enableIdentityAssertion" kind="boolean" default="true" category="CSIInbound" hidden="false" required="false" />
+    <property name="csiIstatefulSession" label="statefulSession" kind="boolean" default="true" category="CSIInbound" hidden="false" required="false" />
+    <property name="csiIenableAttributePropagation" label="enableAttributePropagation" kind="boolean" default="true" category="CSIInbound" hidden="false" required="false" />
+    <property name="csiItrustedIdentities" label="trustedIdentities" kind="string" default=" " category="CSIInbound" hidden="false" required="false" />
+    <!-- csiOutbound configuration -->
+    <property name="SetupCsiOutbound" kind="boolean" category="CSIOutbound" default="false" hidden="false"/>
+    <property name="csiOmessageLevelAuth" label="messageLevelAuth" kind="string" default="Supported" category="CSIOutbound" hidden="false" required="false" />
+    <property name="csiOsupportedAuthMechList" label="supportedAuthMechList" kind="string" default="LTPA|BASICAUTH" category="CSIOutbound" hidden="false" required="false" />
+    <property name="csiOclientCertAuth" label="clientCertAuth" kind="string" default="Never" category="CSIOutbound" hidden="false" required="false" />
+    <property name="csiOtransportLayer" label="transportLayer" kind="string" default="Required" category="CSIOutbound" hidden="false" required="false" />
+    <property name="csiOsslConfiguration" label="sslConfiguration" kind="string" default=" " category="CSIOutbound" hidden="false" required="false" />
+    <property name="csiOenableIdentityAssertion" label="enableIdentityAssertion" kind="boolean" default="true" category="CSIOutbound" hidden="false" required="false" />
+    <property name="csiOstatefulSession" label="statefulSession" kind="boolean" default="true" category="CSIOutbound" hidden="false" required="false" />
+    <property name="csiOenableAttributePropagation" label="enableAttributePropagation" kind="boolean" default="true" category="CSIOutbound" hidden="false" required="false" />
+    <property name="csiOuseServerIdentity" label="useServerIdentity" kind="boolean" default="" category="CSIOutbound" hidden="false" required="false" />
+    <property name="csiOtrustedId" label="trustedId" kind="string" default="" category="CSIOutbound" hidden="false" required="false" />
+    <property name="csiOtrustedIdentityPassword" label="trustedIdentityPassword" kind="string" default="" category="CSIOutbound" hidden="false" required="false" />
+    <property name="csiOtrustedTargetRealms" label="trustedTargetRealms" kind="string" default=" " category="CSIOutbound" hidden="false" required="false" />
+    <property name="csiOenableCacheLimit" label="enableCacheLimit" kind="boolean" default="false" category="CSIOutbound" hidden="false" required="false" />
+    <property name="csiOmaxCacheSize" label="maxCacheSize" kind="integer" default="" category="CSIOutbound" hidden="false" required="false" />
+    <property name="csiOidleSessionTimeout" label="idleSessionTimeout" kind="integer" default="" category="CSIOutbound" hidden="false" required="false" />
+</type>
+
+<!-- Application Bindings -->
+
+ <type-modification type="lmwas.ApplicationBindingSpec">
+        <property name="bindings" as-containment="true" kind="set_of_ci" referenced-type="lmwas.ApplicationBaseBindingSpec" required="false"/>
+ </type-modification>
+
+ <type type="lmwas.ApplicationBinding" extends="was.Resource" deployable-type="lmwas.ApplicationBindingSpec" container-type="was.Cell" >
+    <generate-deployable type="lmwas.ApplicationBindingSpec" extends="was.Deployable"/>
+    <property name="createScript" hidden="true" default="lmwas/bindings/create-application-binding.py" />
+    <property name="destroyScript" hidden="true" default="lmwas/bindings/destroy-application-binding.py" />
+    <property name="libraryScripts" kind="list_of_string" default="lmwas/bindings/binding-object-lib.py" hidden="true"/>
+    <property name="createOrder" kind="integer" default="65" hidden="true"/>
+    <property name="destroyOrder" kind="integer" default="20" hidden="true"/>
+    <property name="description" hidden="false" kind="string" default="" description="describe this policyset"/>
+    <property name="bindings" as-containment="true" kind="set_of_ci" referenced-type="lmwas.ApplicationBindingsBasePolicy" required="false"/>
+</type>
+
+<type type="lmwas.ApplicationBaseBindingSpec" extends="udm.BaseEmbeddedDeployable" virtual="true" description="Base for Application Bindings" />
+
+<type type="lmwas.ApplicationBindingsBasePolicy" extends="udm.BaseEmbeddedDeployed" virtual="true" container-type="lmwas.ApplicationBinding"  description="Base for Application Bindings" />
+
+<type type="lmwas.SCAImportWSBinding" extends="lmwas.ApplicationBindingsBasePolicy" deployable-type="lmwas.SCAImportWSBindingSpec" >
+    <generate-deployable type="lmwas.SCAImportWSBindingSpec" extends="lmwas.ApplicationBaseBindingSpec" />
+    <property name="bindingType" kind="string" default="SCAImportWSBinding" hidden="true" required="true" />
+    <property name="bindingOrder" kind="integer" default="1" hidden="true" required="true" />
+    <property name="moduleName" default="" kind="string" required="true" />
+    <property name="applicationName" default="" kind="string" required="true" />
+    <property name="serviceName" default="" kind="string" required="true"/>
+    <property name="bindURL" default="" kind="string" required="true"/>
+</type>
+
+<!-- lmwas.ApplicationPolicyAttachSet -->
+<type type="lmwas.ApplicationClientPolicySet" extends="lmwas.ApplicationBindingsBasePolicy" deployable-type="lmwas.ApplicationClientPolicySetSpec" >
+    <generate-deployable type="lmwas.ApplicationClientPolicySetSpec" extends="lmwas.ApplicationBaseBindingSpec" />
+    <property name="bindingType" kind="string" default="ApplicationClientPolicySet" hidden="true" required="true" />
+    <property name="bindingOrder" kind="integer" default="1" hidden="true" required="true" />
+    <property name="policySet" kind="string" required="true" />
+    <property name="applicationName" kind="string"  required="true" />
+    <property name="attachmentType" kind="string"  default="client" required="true" hidden="true"/>
+    <property name="serviceName" kind="string" required="true" />
+    <property name="namespace" kind="string" required="true" />
+    <property name="webModuleName" kind="string" required="true" />
+</type>
+
+<!-- lmwas.GeneralPolicySetBinding -->
+<type type="lmwas.GeneralPolicySetBinding" extends="lmwas.ApplicationBindingsBasePolicy" deployable-type="lmwas.GeneralPolicySetBindingSpec" >
+    <generate-deployable type="lmwas.GeneralPolicySetBindingSpec" extends="lmwas.ApplicationBaseBindingSpec" />
+    <property name="bindingType" kind="string" default="GeneralClientPolicySet" hidden="true" required="true" />
+    <property name="bindingOrder" kind="integer" default="2" hidden="true" required="true" />
+    <property name="bindingName" kind="string" required="true" />
+    <property name="applicationName" kind="string"  required="true" />
+    <property name="attachmentType" kind="string"  default="client" required="true" hidden="true"/>
+    <property name="serviceName" kind="string" required="true" />
+    <property name="createOrder" kind="integer" default="66" hidden="true"/>
+    <property name="destroyOrder" kind="integer" default="21" hidden="true"/>
+</type>
+
+<type type="lmwas.WebModContextRoot" extends="lmwas.ApplicationBindingsBasePolicy" deployable-type="lmwas.WebModContextRootSpec" >
+    <generate-deployable type="lmwas.WebModContextRootSpec" extends="lmwas.ApplicationBaseBindingSpec" />
+    <property name="bindingType" kind="string" default="WebModContextRoot" hidden="true" required="true" />
+    <property name="bindingOrder" kind="integer" default="2" hidden="true" required="true" />
+    <property name="webModuleName" default="" kind="string" required="true" />
+    <property name="applicationName" default="" kind="string" required="true" />
+    <property name="uri" default="" kind="string" required="true"/>
+    <property name="contextRoot" default="" kind="string" required="true"/>
+</type>
+
+<type type="lmwas.ModuleProperty" extends="lmwas.ApplicationBindingsBasePolicy" deployable-type="lmwas.ModulePropertySpec" >
+    <generate-deployable type="lmwas.ModulePropertySpec" extends="lmwas.ApplicationBaseBindingSpec" />
+    <property name="bindingType" kind="string" default="ModuleProperty" hidden="true" required="true" />
+    <property name="bindingOrder" kind="integer" default="2" hidden="true" required="true" />
+    <property name="moduleName" default="" kind="string" required="true" />
+    <property name="propertyName" default="" kind="string" required="true" />
+    <property name="propertyValue" default="" kind="string" required="true"/>
+</type>
+
+<type type="lmwas.JNDIforEJBnonMDB" extends="lmwas.ApplicationBindingsBasePolicy" deployable-type="lmwas.JNDIforEJBnonMDBSpec" >
+    <generate-deployable type="lmwas.JNDIforEJBnonMDBSpec" extends="lmwas.ApplicationBaseBindingSpec" />
+    <property name="bindingType" kind="string" default="JNDIforEJBnonMDB" hidden="true" required="true" />
+    <property name="bindingOrder" kind="integer" default="2" hidden="true" required="true" />
+    <property name="appName" default="" kind="string" required="true" />
+    <property name="ejbModule" default="" kind="string" required="true" />
+    <property name="ejbName" default="" kind="string" required="true"/>
+    <property name="moduleUri" default="" kind="string" required="true"/>
+    <property name="newJndi" default="" kind="string" required="true"/>
+</type>
+
+<!-- The following encompasses setSCAImportHttpBindingSSLConfiguration and setSCAImportHttpBindingSSLConfiguration_MethodScope -->
+<type type="lmwas.SCAImportHttpBindingSSLConfiguration" extends="lmwas.ApplicationBindingsBasePolicy" deployable-type="lmwas.SCAImportHttpBindingSSLConfigurationSpec" >
+    <generate-deployable type="lmwas.SCAImportHttpBindingSSLConfigurationSpec" extends="lmwas.ApplicationBaseBindingSpec" />
+    <property name="bindingType" kind="string" default="SCAImportHttpBindingSSLConfiguration" hidden="true" required="true" />
+    <property name="bindingOrder" kind="integer" default="2" hidden="true" required="true" />
+    <property name="moduleName" default="" kind="string" required="true" />
+    <property name="importName" default="" kind="string" required="true" />
+    <property name="methodName" default="" kind="string" required="false"/>
+    <property name="newUrl" default="" kind="string" required="false"/>
+    <property name="sslConfiguration" default="" kind="string" required="true"/>
+</type>
+
+<type type="lmwas.SCAImportHttpBinding" extends="lmwas.ApplicationBindingsBasePolicy" deployable-type="lmwas.SCAImportHttpBindingSpec" >
+    <generate-deployable type="lmwas.SCAImportHttpBindingSpec" extends="lmwas.ApplicationBaseBindingSpec" />
+    <property name="bindingType" kind="string" default="SCAImportHttpBinding" hidden="true" required="true" />
+    <property name="bindingOrder" kind="integer" default="2" hidden="true" required="true" />
+    <property name="moduleName" default="" kind="string" required="true" />
+    <property name="importName" default="" kind="string" required="true" />
+    <property name="methodName" default="" kind="string" required="false" />
+    <property name="newUrl" default="" kind="string" required="true"/>
+    <property name="newTimeout" default="NA" kind="string" required="false"/>
+</type>
+
+<!-- The following encompasses setSCAImportHttpBindingWithAuth and setSCAImportHttpBindingWithAuth_MethodScope -->
+<type type="lmwas.SCAImportHttpBindingWithAuth" extends="lmwas.ApplicationBindingsBasePolicy" deployable-type="lmwas.SCAImportHttpBindingWithAuthSpec" >
+    <generate-deployable type="lmwas.SCAImportHttpBindingWithAuthSpec" extends="lmwas.ApplicationBaseBindingSpec" />
+    <property name="bindingType" kind="string" default="SCAImportHttpBindingWithAuth" hidden="true" required="true" />
+    <property name="bindingOrder" kind="integer" default="2" hidden="true" required="true" />
+    <property name="moduleName" default="" kind="string" required="true" />
+    <property name="importName" default="" kind="string" required="true" />
+    <property name="newUrl" default="" kind="string" required="true" />
+    <property name="j2cAuthName" default="" kind="string" required="true" />
+    <property name="methodName" default="" kind="string" required="false"/>
+</type>
+
+<!-- The following encompasses setSCAImportHttpBindingProxy, setSCAImportHttpBindingProxy_MethodScope, setSCAImportHttpsBindingProxy, setSCAImportHttpsBindingProxy_MethodScope -->
+<type type="lmwas.SCAImportBindingProxy" extends="lmwas.ApplicationBindingsBasePolicy" deployable-type="lmwas.SCAImportBindingProxySpec" >
+    <generate-deployable type="lmwas.SCAImportBindingProxySpec" extends="lmwas.ApplicationBaseBindingSpec" />
+    <property name="bindingType" kind="string" default="SCAImportBindingProxy" hidden="true" required="true" />
+    <property name="bindingOrder" kind="integer" default="2" hidden="true" required="true" />
+    <property name="moduleName" default="" kind="string" required="true" />
+    <property name="importName" default="" kind="string" required="true" />
+    <property name="methodName" default="" kind="string" required="false" />
+    <property name="newProxyHost" default="" kind="string" required="true"/>
+    <property name="newProxyPort" default="" kind="string" required="true"/>
+    <property name="protocolType" default="" kind="string" description="Valid entries should be http or https" required="true"/>
+</type>
+
+<!-- The following encompasses setSCAImportHttpBindingConnectionRetries, setSCAImportHttpBindingConnectionRetries_MethodScope -->
+<type type="lmwas.SCAImportHttpBindingConnectionRetries" extends="lmwas.ApplicationBindingsBasePolicy" deployable-type="lmwas.SCAImportHttpBindingConnectionRetriesSpec" >
+    <generate-deployable type="lmwas.SCAImportHttpBindingConnectionRetriesSpec" extends="lmwas.ApplicationBaseBindingSpec" />
+    <property name="bindingType" kind="string" default="SCAImportHttpBindingConnectionRetries" hidden="true" required="true" />
+    <property name="bindingOrder" kind="integer" default="2" hidden="true" required="true" />
+    <property name="moduleName" default="" kind="string" required="true" />
+    <property name="importName" default="" kind="string" required="true" />
+    <property name="methodName" default="" kind="string" required="false" />
+    <property name="newRetriesValue" default="" kind="integer" required="true"/>
+</type>
+
+<!-- The following encompasses setWSClientBindPort, setWSClientBindPortWithAuth, setWSClientAuthOnly, setWSClientBindTimeout -->
+<type type="lmwas.WSClientBindings" extends="lmwas.ApplicationBindingsBasePolicy" deployable-type="lmwas.WSClientBindingsSpec" >
+    <generate-deployable type="lmwas.WSClientBindingsSpec" extends="lmwas.ApplicationBaseBindingSpec" />
+    <property name="bindingType" kind="string" default="WSClientBindings" hidden="true" required="true" />
+    <property name="bindingOrder" kind="integer" default="2" hidden="true" required="true" />
+    <property name="applicationName" default="" kind="string" category="General" required="true" />
+    <property name="ejbModuleName" default="" kind="string" category="General" required="true" />
+    <property name="ejbName" default="" kind="string" category="General" required="true" />
+    <property name="webServiceName" default="" kind="string" category="General" required="true" />
+    <property name="portName" default="" kind="string" category="General" required="true" />
+    <!-- optional values for different binding types -->
+    <property name="bindUrl" default="" kind="string" category="Optional Settings" required="false"/>
+    <property name="authId" default="" kind="string" category="Optional Settings" required="false"/>
+    <property name="authPassword" default="" kind="string" password="true" category="Optional Settings" required="false"/>	
+    <property name="timeoutValue" default="" kind="integer" category="Optional Settings" required="false"/>
+</type>
+
+
+<type type="lmwas.SharedLibraryForModule" extends="lmwas.ApplicationBindingsBasePolicy" deployable-type="lmwas.SharedLibraryForModuleSpec" >
+    <generate-deployable type="lmwas.SharedLibraryForModuleSpec" extends="lmwas.ApplicationBaseBindingSpec" />
+    <property name="bindingType" kind="string" default="SharedLibraryForModule" hidden="true" required="true" />
+    <property name="bindingOrder" kind="integer" default="2" hidden="true" required="true" />
+    <property name="applicationName" default="" kind="string" required="true" />
+    <property name="sharedLibrariesName" default="" kind="string" required="true" />
+</type>
+
+<type type="lmwas.MDBRetries" extends="lmwas.ApplicationBindingsBasePolicy" deployable-type="lmwas.MDBRetriesSpec" >
+    <generate-deployable type="lmwas.MDBRetriesSpec" extends="lmwas.ApplicationBaseBindingSpec" />
+    <property name="bindingType" kind="string" default="MDBRetries" hidden="true" required="true" />
+    <property name="bindingOrder" kind="integer" default="2" hidden="true" required="true" />
+    <property name="mdbName" default="" kind="string" required="true" />
+    <property name="retryCount" default="" kind="integer" required="true" />
+</type>
+
+<type type="lmwas.DestinationMaxRetries" extends="lmwas.ApplicationBindingsBasePolicy" deployable-type="lmwas.DestinationMaxRetriesSpec" >
+    <generate-deployable type="lmwas.DestinationMaxRetriesSpec" extends="lmwas.ApplicationBaseBindingSpec" />
+    <property name="bindingType" kind="string" default="DestinationMaxRetries" hidden="true" required="true" />
+    <property name="bindingOrder" kind="integer" default="2" hidden="true" required="true" />
+    <property name="busName" default="" kind="string" required="true" />
+    <property name="destinationName" default="" kind="string" required="true" />
+    <property name="failedDeliveryCount" default="" kind="integer" required="true" />
+</type>
+
+<!-- End of Endpoint Bindings -->
+
+<type type="lmwas.OutboundDynamicSSLConfig" extends="was.Resource" deployable-type="lmwas.OutboundDynamicSSLConfigSpec" >
+    <generate-deployable type="lmwas.OutboundDynamicSSLConfigSpec" extends="was.Deployable" />
+    <property name="description" label="Description" kind="string" hidden="false" />
+    <property name="connectionInformation" label="Connection Information" kind="list_of_string" hidden="false" />
+    <property name="sslConfiguration" label="SSL Configuration" kind="string" hidden="false" />
+    <property name="certificateAlias" label="Certificate Alias" kind="string" hidden="false" />
+    <!-- admin properties -->
+    <property name="createScript" hidden="true" default="lmwas/ssl/create-outbound-dynamic-ssl-config.py" />
+    <property name="destroyScript" hidden="true" default="lmwas/ssl/destroy-outbound-dynamic-ssl-config.py" />
+    <property name="libraryScripts" kind="list_of_string" default="lmwas/ssl/ssl-object-lib.py" hidden="true"/>
+    <property name="createOrder" kind="integer" default="65" hidden="true"/>
+    <property name="destroyOrder" kind="integer" default="20" hidden="true"/>
+</type>
+
+<type type="lmwas.createKeySet" extends="was.Resource" deployable-type="lmwas.createKeySetSpec" >
+    <generate-deployable type="lmwas.createKeySetSpec" extends="was.Deployable" />
+    	<property name="prefix" label="Key alias prefix name" kind="string" hidden="false" />
+    		<property name="password" label="Password" kind="string" hidden="false" />
+    			<property name="maxKeys" label="Maximum number of keys referenced" kind="integer" hidden="false" />
+    				<property name="isKeyPair" label="Generates key pair" kind="boolean" hidden="false" />
+    					<property name="keyGenClass" label="Key generator class name" kind="string" hidden="false" />
+    						<property name="keyStoreName" label="Key store scope name" kind="string" hidden="false"/>
+    							
+    <!-- admin properties -->
+    <property name="createScript" hidden="true" default="lmwas/keysets/create-key-set-config.py" />
+        <property name="destroyScript" hidden="true" default="lmwas/keysets/destroy-key-set-config.py" />
+            <property name="libraryScripts" kind="list_of_string" default="lmwas/keysets/key-set-object-lib.py" hidden="true"/>
+                <property name="createOrder" kind="integer" default="61" hidden="true"/>
+                    <property name="destroyOrder" kind="integer" default="20" hidden="true"/>
+                    </type>
+
+</synthetic>
+

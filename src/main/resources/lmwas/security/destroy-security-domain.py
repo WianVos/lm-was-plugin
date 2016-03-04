@@ -1,0 +1,1 @@
+destroySecurityDomain(deployed.name)

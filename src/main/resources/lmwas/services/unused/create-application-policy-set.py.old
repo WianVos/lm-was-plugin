@@ -1,0 +1,101 @@
+policysetname = deployed.PolicySetName
+includeJMSTransport = deployed.includeJMSTransport
+JMSTransportSettings = deployed.JmsTransportSettings
+includeHTTPTransport = deployed.includeHTTPTransport
+HTTPTransportSettings = deployed.HttpTransportSettings
+includeCustomProperties = deployed.includeCustomProperties
+CustomPropertiesSettings = deployed.CustomPropertiesSettings
+includeSSLTransport = deployed.includeSSLTransport
+SSLTransportSettings = deployed.SslTransportSettings
+includeWSAddressing = deployed.includeWSAddressing
+WSAddressingSettings = deployed.WSAdressingSettings
+includeWSReliableMessaging = deployed.includeWSReliableMessaging
+WSReliableMessagingSettings = deployed.WSReliableMessagingSettings
+includeWSSecurity = deployed.includeWSSecurity
+WSSecuritySettings = deployed.WSSecuritySettings
+includeWSTransaction = deployed.includeWSTransaction
+WSTransactionSettings = deployed.WSTransactionSettings
+
+
+def updatePolicySetSettings(policysetname, type, settings):
+ if not containsPolicyType(policysetname, type):
+  addPolicySetType(policysetname, type)
+ if len(settings) > 0:
+  for key, value in tuple(settings.items()):
+   customizePolicySetType(policysetname, type, key, value)
+
+policyTypeNames = ['JMSTransport','HTTPTransport','CustomProperties','SSLTransport','WSAddressing','WSReliableMessaging', 'WSSecurity','WSTransaction']
+
+
+for policyTypeName in policyTypeNames:
+ exec('includePolicy=include%s') % policyTypeName
+ settingsVarName = policyTypeName+'Settings'
+ exec('settings=%s') % settingsVarName
+ print includePolicy
+ print settings
+
+if not policySetExists(policysetname):
+  createPolicySet(policysetname)
+
+
+if includeJMSTransport:
+  if not containsPolicyType(policysetname, 'JMSTransport'):
+    addPolicySetType(policysetname, 'JMSTransport')
+  if len(JMSTransportSettings) > 0:
+    for key, value in tuple(JmsTransportSettings.items()):
+      customizePolicySetType(policysetname, 'JMSTransport', key, value)
+   	
+if includeHttpTransport:
+  if not containsPolicyType(policysetname, 'HTTPTransport'):
+    addPolicySetType(policysetname, 'HTTPTransport')
+  if len(HttpTransportSettings) > 0:
+    for key, value in tuple(HttpJmsTransportSettings.items()):
+      customizePolicySetType(policysetname, 'HTTPTransport', key, value)
+
+if includeCustomProperties:
+  if not containsPolicyType(policysetname, 'CustomProperties'):
+    addPolicySetType(policysetname, 'CustomProperties')
+  if len(CustomPropertiesSettings) > 0:
+    for key, value in tuple(CustomPropertiesSettings.items()):
+      customizePolicySetType(policysetname, 'CustomProperties', key, value)
+
+if includeSSLTransport:
+  if not containsPolicyType(policysetname, 'SSLTransport'):
+    addPolicySetType(policysetname, 'SSLTransport')
+  if len(SslTransportSettings) > 0:
+    for key, value in tuple(SslTransportSettings.items()):
+      customizePolicySetType(policysetname, 'SSLTransport', key, value)
+
+if includeWSAddressing:
+  if not containsPolicyType(policysetname, 'WSAddressing'):
+    addPolicySetType(policysetname, 'WSAddressing')
+  if len(WSAdressingSettings) > 0:
+    for key, value in tuple(WSAdressingSettings.items()):
+      customizePolicySetType(policysetname, 'WSAddressing', key, value)
+
+if includeWSReliableMessaging:
+  if not containsPolicyType(policysetname, 'WSReliableMessaging'):
+    addPolicySetType(policysetname, 'WSReliableMessaging')
+  if len(WSReliableMessagingSettings) > 0:
+    for key, value in tuple(WSReliableMessagingSettings.items()):
+      customizePolicySetType(policysetname, 'WSReliableMessaging', key, value)
+
+if includeWSSecurity:
+  if not containsPolicyType(policysetname, 'WSSecurity'):
+    addPolicySetType(policysetname, 'WSSecurity')
+  if len(WSSecuritySettings) > 0:
+    for key, value in tuple(WSSecuritySettings.items()):
+      customizePolicySetType(policysetname, 'WSSecurity', key, value)
+
+if includeWSTransaction:
+  if not containsPolicyType(policysetname, 'WSTransaction'):
+    addPolicySetType(policysetname, 'WSTransaction')
+  if len(WSTransactionSettings) > 0:
+    for key, value in tuple(WSTransactionSettings.items()):
+      customizePolicySetType(policysetname, 'WSTransaction', key, value)
+
+
+
+
+
+

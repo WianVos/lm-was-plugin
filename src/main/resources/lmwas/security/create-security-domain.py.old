@@ -1,0 +1,108 @@
+if securityDomainExists(deployed.name):	
+  destroySecurityDomain(deployed.name)	
+
+AdminTask.createSecurityDomain(['-securityDomainName', deployed.name, '-securityDomainDescription', deployed.description])
+print "security domain: %s created" % deployed.name
+
+#map the security domain
+for ci in deployed.mapping:
+   removeResourcesFromSecurityDomain(deployed.name)
+   if not resourceExistsInSecurityDomain(ci.name, deployed.name):
+     AdminTask.mapResourceToSecurityDomain("-securityDomainName %s -resourceName Cell=:ServerCluster=%s" % (deployed.name, ci.name))
+     print "succesfully mapped securityDomain %s to %s" % (deployed.name, ci.name)
+
+if deployed.SetupLdap:
+ ldapProperties = ['realmName','ldapHost','ldapPort','ldapServerType','baseDN','bindDN','bindPassword','searchTimeout','customProperties','sslConfig','reuseConnection','ignoreCase','sslEnabled','verifyRegistry']
+ adminTaskProperties="-securityDomainName %s %s" % (deployed.name, formatAdminTaskParameters(ldapProperties,""))
+
+ for property in properties:
+  exec('propertyValue=deployed.%s') % property
+  if propertyValue != "": 
+   if property == "customProperties":
+    customPropertiesString="["
+    for key, value in tuple(propertyValue.items()):
+      customPropertiesString+= '"%s=%si",' % (key, value)
+    propertyValue=customPropertiesString + "]"
+    propertyValue = propertyValue.replace(',]',']')
+    if propertyValue == "[]":
+     propertyValue = ""
+ 		
+   adminTaskProperties +=" -%s %s" % (property, propertyValue)
+ 
+ 
+ for property in booleanProperties:
+   exec('propertyValue=deployed.%s') % property
+   if propertyValue == 1:
+     propertyValue = "True" 
+   else:
+     propertyValue = "False" 
+   adminTaskProperties +=" -%s %s" % (property, propertyValue)
+ 
+ 
+ AdminTask.configureAppLDAPUserRegistry("%s" % adminTaskProperties)
+
+ adminTaskProperties="-securityDomainName %s" % deployed.name
+ properties = ['userFilter','groupFilter','userIdMap','groupMemberIdMap','certificateFilter','certificateMapMode','ursCustomProperties']
+ booleanProperties = ['verifyRegistry']
+
+ for property in properties:
+  exec('propertyValue=deployed.%s') % property
+  if propertyValue != "":
+   if property == "ursCustomProperties":
+    property = 'customProperties'
+   adminTaskProperties +=" -%s %s" % (property, propertyValue)
+
+  for property in booleanProperties:
+   exec('propertyValue=deployed.%s') % property
+   if propertyValue == 1:
+     propertyValue = "True"
+   else:
+     propertyValue = "False"
+   adminTaskProperties +=" -%s %s" % (property, propertyValue)
+
+ AdminTask.configureAppLDAPUserRegistry("%s" % adminTaskProperties)
+
+#setup LTPA TimeOut
+print "setting up the ltpa timeout" 
+AdminTask.setLTPATimeout("-securityDomainName %s -timeout %i " % (deployed.name, deployed.ltpaTimeout))
+print "LTPA timeout setting set to %i" % deployed.ltpaTimeout 
+
+#CSIInbound config
+#CSIOutbound config
+
+#this method allows you to pass a list of options for a admintask command and a prefix with which the options are tagged in the deployed object and formulate a admintask parameters string
+
+
+properties = ['realmName','ldapHost','ldapPort','ldapServerType','baseDN','bindDN','bindPassword','searchTimeout','customProperties','sslConfig','reuseConnection','ignoreCase','sslEnabled','verifyRegistry']
+formattedParameters = formatAdminTaskParameters(properties,"")
+runAdminTaskCommand('configureAppLDAPUserRegistry', formattedParameters)
+
+# exec'propertyValue=deployed.%s') % property
+#  if propertyValue != "":
+#   if property == "customProperties":
+#    customPropertiesString="["
+#    for key, value in tuple(propertyValue.items()):
+#      customPropertiesString+= '"%s=%si",' % (key, value)
+#    propertyValue=customPropertiesString + "]"
+#    propertyValue = propertyValue.replace(',]',']')
+#    if propertyValue == "[]":
+#     propertyValue = ""
+#
+#   adminTaskProperties +=" -%s %s" % (property, propertyValue)
+#
+#
+# for property in booleanProperties:
+#   exec('propertyValue=deployed.%s') % property
+#   if propertyValue == 1:
+#     propertyValue = "True"
+#   else:
+#     propertyValue = "False"
+#   adminTaskProperties +=" -%s %s" % (property, propertyValue)
+#
+ 
+
+
+bla
+
+#AdminTask.configureCSIInbound('[-securityDomainName some_insecure_realm -messageLevelAuth Supported -supportedAuthMechList LTPA|BASICAUTH -clientCertAuth Supported -transportLayer Required -sslConfiguration -enableIdentityAssertion true -statefulSession true -enableAttributePropagation true -trustedIdentities ]')  
+#AdminTask.configureCSIOutbound('[-securityDomainName some_insecure_realm -messageLevelAuth Supported -supportedAuthMechList LTPA|BASICAUTH -clientCertAuth Never -transportLayer Required -sslConfiguration -enableIdentityAssertion true -statefulSession true -enableAttributePropagation true -useServerIdentity true -trustedId -trustedIdentityPassword ******** false -trustedTargetRealms -enableCacheLimit false]')  
